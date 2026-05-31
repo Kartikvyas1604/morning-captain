@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
       512
     );
 
-    const yesterday = text.match(/Yesterday:\s*(.+?)(?=\nToday:|$)/s)?.[1]?.trim() || "Nothing tracked";
-    const today = text.match(/Today:\s*(.+?)(?=\nBlockers:|$)/s)?.[1]?.trim() || "Nothing tracked";
-    const blockers = text.match(/Blockers:\s*(.+?)(?=$)/s)?.[1]?.trim() || "None";
+    const yesterday = text.match(/Yesterday:\s*([\s\S]+?)(?=\nToday:|$)/)?.[1]?.trim() || "Nothing tracked";
+    const today = text.match(/Today:\s*([\s\S]+?)(?=\nBlockers:|$)/)?.[1]?.trim() || "Nothing tracked";
+    const blockers = text.match(/Blockers:\s*([\s\S]+?)(?=$)/)?.[1]?.trim() || "None";
 
     return NextResponse.json({ yesterday, today, blockers, raw: text });
   } catch (err) {
