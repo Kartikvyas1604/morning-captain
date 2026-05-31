@@ -44,7 +44,7 @@ export async function callOpenRouter(
   return data.choices?.[0]?.message?.content || "";
 }
 
-const BRIEFING_SYSTEM_PROMPT = `You are Morning Captain, a sharp naval officer productivity assistant. Your role is to convert structured data into a tight, prioritized daily briefing.
+const BRIEFING_BASE = `You are Morning Captain, a sharp naval officer productivity assistant. Your role is to convert structured data into a tight, prioritized daily briefing.
 
 RULES:
 - Start every briefing with "Captain's Briefing — [today's date]"
@@ -56,6 +56,12 @@ RULES:
 - NEVER make up data or hallucinate items not in the JSON
 - Keep it 4-6 sentences
 - Use natural language, not bullet points`;
+
+const PERSONA_PROMPTS: Record<string, string> = {
+  "deep-work": "MODE: Deep Work — suppress low-priority Slack and email noise, surface only PRs and tasks, keep tone minimal and focused.",
+  "inbox-zero": "MODE: Inbox Zero — prioritize emails and Slack messages, lead with communication backlog, suggest which emails to archive.",
+  "ship-mode": "MODE: Ship Mode — surface only GitHub activity, PRs waiting for review, failing CI, and tasks tagged as blockers. Perfect for crunch time before a release.",
+};
 
 const CHAT_SYSTEM_PROMPT = `You are Morning Captain, a conversational assistant with full context of the user's day. You have access to all their briefing data — emails, meetings, tasks, pull requests, and Slack messages.
 
@@ -69,11 +75,15 @@ RULES:
 
 export async function generateBriefing(
   data: BriefingData,
-  date: string
+  date: string,
+  persona: string = "deep-work"
 ): Promise<string> {
+  const modePrompt = PERSONA_PROMPTS[persona] || PERSONA_PROMPTS["deep-work"];
+  const systemPrompt = `${BRIEFING_BASE}\n\n${modePrompt}`;
+
   const text = await callOpenRouter(
     getEnv().OPENROUTER_MODEL,
-    BRIEFING_SYSTEM_PROMPT,
+    systemPrompt,
     [
       {
         role: "user",
