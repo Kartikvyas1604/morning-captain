@@ -96,3 +96,27 @@ export interface StoredTokens {
   token_type?: string;
   scope?: string;
 }
+
+export type Persona = "deep-work" | "inbox-zero" | "ship-mode";
+
+export interface CaptainLogEntry {
+  id: string;
+  date: string;
+  summary: string;
+  data: BriefingData;
+  created_at: string;
+}
+
+export interface StandupResponse {
+  yesterday: string;
+  today: string;
+  blockers: string;
+  raw: string;
+}
+
+export interface ShellQueryResult {
+  sql: string;
+  columns: string[];
+  rows: Record<string, unknown>[];
+  error?: string;
+}

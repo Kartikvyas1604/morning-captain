@@ -11,7 +11,7 @@ interface OpenRouterResponse {
   choices: OpenRouterChoice[];
 }
 
-async function callOpenRouter(
+export async function callOpenRouter(
   model: string,
   systemPrompt: string,
   messages: { role: string; content: string }[],
