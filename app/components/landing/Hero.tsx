@@ -19,15 +19,15 @@ export default function Hero() {
             Gmail
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow delay-2" style={{ animationDelay: "0.5s" }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow delay-pulse-2" />
             Calendar
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow delay-3" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow delay-pulse-3" />
             Notion
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow delay-pulse-4" />
             GitHub
           </span>
         </div>
