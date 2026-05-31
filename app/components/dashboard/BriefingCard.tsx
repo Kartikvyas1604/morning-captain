@@ -32,12 +32,12 @@ export default function BriefingCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-      className="frosted-glass rounded-xl p-5"
+      initial={{ opacity: 0, y: 24, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.6, delay: 0.4 + index * 0.12, ease: [0.16, 1, 0.3, 1] }}
+      className="tilt-card-glow frosted-glass rounded-xl p-5 cursor-default"
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="card-3d-layer flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <span className={accentClass}>
             {icon}
@@ -50,24 +50,21 @@ export default function BriefingCard({
         {loading ? (
           <span className="w-8 h-5 rounded-full bg-[var(--bg-tertiary)] animate-pulse" />
         ) : (
-          <span className={`text-xs font-mono px-2.5 py-1 rounded-full border ${badgeClass}`}>
+          <span className={`card-3d-depth text-xs font-mono px-2.5 py-1 rounded-full border ${badgeClass}`}>
             {count}
           </span>
         )}
       </div>
       {loading ? (
-        <div className="space-y-2">
+        <div className="card-3d-layer space-y-2">
           <div className="h-4 bg-[var(--bg-tertiary)] rounded animate-pulse" />
           <div className="h-4 bg-[var(--bg-tertiary)] rounded animate-pulse w-3/4" />
           <div className="h-4 bg-[var(--bg-tertiary)] rounded animate-pulse w-1/2" />
         </div>
       ) : (
-        children
-      )}
-      {!loading && count > 3 && (
-        <button className="mt-3 text-xs text-[var(--accent-teal)] font-mono hover:underline transition-opacity">
-          View all {count} items →
-        </button>
+        <div className="card-3d-layer">
+          {children}
+        </div>
       )}
     </motion.div>
   );
