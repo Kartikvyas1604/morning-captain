@@ -45,6 +45,7 @@ export default function SourceToggle({
 
       <button
         onClick={onToggle}
+        aria-label={`Toggle ${name}`}
         className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
           enabled ? "bg-[var(--accent-teal)]" : "bg-[var(--bg-tertiary)] border border-[var(--border)]"
         }`}

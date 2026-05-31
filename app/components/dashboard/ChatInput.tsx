@@ -98,6 +98,7 @@ export default function ChatInput({ briefingData }: ChatInputProps) {
         <button
           onClick={handleSend}
           disabled={!query.trim() || sending || !briefingData}
+          aria-label="Send message"
           className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] text-[var(--accent-teal)] hover:bg-[var(--accent-teal)] hover:text-[var(--bg-primary)] transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${sending ? "animate-pulse" : "group-hover:rotate-45"}`}>

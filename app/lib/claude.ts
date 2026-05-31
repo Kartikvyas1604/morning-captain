@@ -1,14 +1,47 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { getEnv } from "./env";
 import type { BriefingData, ChatMessage } from "./types";
 
-let client: Anthropic | null = null;
+const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 
-function getClient(): Anthropic {
-  if (!client) {
-    client = new Anthropic({ apiKey: getEnv().ANTHROPIC_API_KEY });
+interface OpenRouterChoice {
+  message: { content: string };
+}
+
+interface OpenRouterResponse {
+  choices: OpenRouterChoice[];
+}
+
+async function callOpenRouter(
+  model: string,
+  systemPrompt: string,
+  messages: { role: string; content: string }[],
+  maxTokens: number
+): Promise<string> {
+  const env = getEnv();
+
+  const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: maxTokens,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages,
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`OpenRouter ${res.status}: ${text}`);
   }
-  return client;
+
+  const data: OpenRouterResponse = await res.json();
+  return data.choices?.[0]?.message?.content || "";
 }
 
 const BRIEFING_SYSTEM_PROMPT = `You are Morning Captain, a sharp naval officer productivity assistant. Your role is to convert structured data into a tight, prioritized daily briefing.
@@ -38,28 +71,17 @@ export async function generateBriefing(
   data: BriefingData,
   date: string
 ): Promise<string> {
-  const c = getClient();
-
-  const message = await c.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 1024,
-    system: BRIEFING_SYSTEM_PROMPT,
-    messages: [
+  const text = await callOpenRouter(
+    getEnv().OPENROUTER_MODEL,
+    BRIEFING_SYSTEM_PROMPT,
+    [
       {
         role: "user",
-        content: `Here is today's data (${date}):
-
-${JSON.stringify(data, null, 2)}
-
-Generate the morning briefing.`,
+        content: `Here is today's data (${date}):\n\n${JSON.stringify(data, null, 2)}\n\nGenerate the morning briefing.`,
       },
     ],
-  });
-
-  const text = message.content
-    .filter((block) => block.type === "text")
-    .map((block) => (block as Anthropic.TextBlock).text)
-    .join("\n");
+    1024
+  );
 
   return text || "Captain's Briefing — No data available to generate a briefing.";
 }
@@ -69,33 +91,20 @@ export async function chatWithBriefing(
   history: ChatMessage[],
   briefingData: BriefingData
 ): Promise<string> {
-  const c = getClient();
+  const contextMessage = `Here is the user's full briefing data for context:\n\n${JSON.stringify(briefingData, null, 2)}\n\nUse this to answer questions about their day.`;
 
-  const contextMessage: ChatMessage = {
-    role: "assistant",
-    content: `Here is the user's full briefing data for context:\n\n${JSON.stringify(briefingData, null, 2)}\n\nUse this to answer questions about their day.`,
-  };
-
-  const messages: Anthropic.MessageParam[] = [
-    { role: "user", content: contextMessage.content },
-    ...history.map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: m.content,
-    })),
-    { role: "user" as const, content: userMessage },
+  const messages: { role: string; content: string }[] = [
+    { role: "user", content: contextMessage },
+    ...history.map((m) => ({ role: m.role, content: m.content })),
+    { role: "user", content: userMessage },
   ];
 
-  const response = await c.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 2048,
-    system: CHAT_SYSTEM_PROMPT,
+  const text = await callOpenRouter(
+    getEnv().OPENROUTER_MODEL,
+    CHAT_SYSTEM_PROMPT,
     messages,
-  });
-
-  const text = response.content
-    .filter((block) => block.type === "text")
-    .map((block) => (block as Anthropic.TextBlock).text)
-    .join("\n");
+    2048
+  );
 
   return text || "I don't have an answer based on the available data.";
 }

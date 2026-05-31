@@ -28,6 +28,7 @@ export default function AISummary({ summary, timestamp, loading, onRefresh }: AI
         <button
           onClick={onRefresh}
           disabled={loading}
+          aria-label="Refresh briefing"
           className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent-gold)] hover:bg-[var(--bg-tertiary)] transition-all disabled:opacity-50"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={loading ? "animate-spin" : ""}>

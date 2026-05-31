@@ -13,7 +13,8 @@ function optionalEnv(key: string, fallback: string = ""): string {
 
 export function getEnv() {
   return {
-    ANTHROPIC_API_KEY: requireEnv("ANTHROPIC_API_KEY"),
+    OPENROUTER_API_KEY: requireEnv("OPENROUTER_API_KEY"),
+    OPENROUTER_MODEL: optionalEnv("OPENROUTER_MODEL", "anthropic/claude-sonnet-4"),
     CORAL_BINARY: optionalEnv("CORAL_BINARY", "coral"),
     CORAL_PROFILE: optionalEnv("CORAL_PROFILE", "default"),
     GOOGLE_CLIENT_ID: optionalEnv("GOOGLE_CLIENT_ID"),
