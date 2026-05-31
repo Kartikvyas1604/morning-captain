@@ -42,6 +42,10 @@ export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
   },
 };
 
+export function isProviderConfigured(provider: OAuthProviderConfig): boolean {
+  return !!(process.env[provider.clientIdEnv] && process.env[provider.clientSecretEnv]);
+}
+
 export function getOAuthUrl(
   provider: OAuthProviderConfig,
   state: string,

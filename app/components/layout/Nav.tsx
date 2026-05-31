@@ -80,6 +80,19 @@ export default function Nav() {
             ))}
           </div>
 
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("opencode:toggle-command-palette"))}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--bg-tertiary)]/60 border border-[var(--border)] text-[10px] font-mono text-[var(--text-secondary)] hover:text-[var(--accent-gold)] hover:border-[var(--accent-gold)]/40 transition-all duration-200"
+            aria-label="Open command palette"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
+            </svg>
+            <kbd className="text-[10px] font-mono opacity-70">
+              <span className="text-[11px]">⌘</span>K
+            </kbd>
+          </button>
+
           <span className="text-sm font-heading text-[var(--text-secondary)] hidden sm:block">{time}</span>
 
           {isHome ? (

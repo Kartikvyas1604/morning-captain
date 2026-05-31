@@ -29,7 +29,18 @@ export default function CommandBar() {
       if (e.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+
+    const customHandler = () => {
+      setOpen((p) => !p);
+      setResult(null);
+      setInput("");
+    };
+    window.addEventListener("opencode:toggle-command-palette", customHandler);
+
+    return () => {
+      window.removeEventListener("keydown", handler);
+      window.removeEventListener("opencode:toggle-command-palette", customHandler);
+    };
   }, []);
 
   useEffect(() => {
@@ -204,6 +215,21 @@ export default function CommandBar() {
                   </p>
                 </div>
               )}
+            </div>
+
+            <div className="flex items-center justify-between px-5 py-3 border-t border-[var(--border)] bg-[var(--bg-secondary)]/50">
+              <div className="flex items-center gap-3 text-[10px] font-mono text-[var(--text-secondary)]">
+                <span><kbd className="px-1 py-0.5 rounded border border-[var(--border)]">⏎</kbd> run</span>
+                <span><kbd className="px-1 py-0.5 rounded border border-[var(--border)]">↑</kbd> history</span>
+                <span><kbd className="px-1 py-0.5 rounded border border-[var(--border)]">esc</kbd> close</span>
+              </div>
+              <div className="flex items-center gap-2 text-[10px] font-mono text-[var(--text-secondary)]">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="opacity-50">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                Coral Shell
+              </div>
             </div>
           </motion.div>
         </motion.div>
