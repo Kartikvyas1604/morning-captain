@@ -1,5 +1,5 @@
 import { execSync } from "child_process";
-import { env } from "./env";
+import { getEnv } from "./env";
 import type {
   Email,
   CalendarEvent,
@@ -181,7 +181,7 @@ export async function executeBriefingQuery(): Promise<{
   sourceStatus: Record<string, boolean>;
   error: string | null;
 }> {
-  if (env.CORAL_ENABLED !== "true") {
+  if (getEnv().CORAL_ENABLED !== "true") {
     return {
       data: { emails: [], meetings: [], tasks: [], pull_requests: [], slack_messages: [] },
       sourceStatus: { gmail: false, calendar: false, notion: false, github: false, slack: false },
@@ -191,7 +191,7 @@ export async function executeBriefingQuery(): Promise<{
 
   try {
     const output = execSync(
-      `${env.CORAL_BINARY} query --profile ${env.CORAL_PROFILE} --format json`,
+      `${getEnv().CORAL_BINARY} query --profile ${getEnv().CORAL_PROFILE} --format json`,
       { input: BRIEFING_QUERY, timeout: 15000, encoding: "utf-8" }
     );
 
@@ -231,14 +231,14 @@ export async function executeBriefingQuery(): Promise<{
 export async function checkSourceHealth(
   source: SourceName
 ): Promise<{ connected: boolean; error?: string }> {
-  if (env.CORAL_ENABLED !== "true") {
+  if (getEnv().CORAL_ENABLED !== "true") {
     return { connected: false, error: "Coral is disabled" };
   }
 
   try {
     const testQuery = `SELECT 1 FROM ${source === "gmail" ? "gmail.inbox" : source === "calendar" ? "calendar.events" : source === "notion" ? "notion.tasks" : source === "github" ? "github.pull_requests" : "slack.messages"} LIMIT 1`;
 
-    execSync(`${env.CORAL_BINARY} query --profile ${env.CORAL_PROFILE} --format json`, {
+    execSync(`${getEnv().CORAL_BINARY} query --profile ${getEnv().CORAL_PROFILE} --format json`, {
       input: testQuery,
       timeout: 5000,
       encoding: "utf-8",

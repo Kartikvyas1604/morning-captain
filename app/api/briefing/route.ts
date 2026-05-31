@@ -9,6 +9,10 @@ export async function POST() {
   try {
     const { data, sourceStatus, error: coralError } = await executeBriefingQuery();
 
+    if (coralError) {
+      console.warn("[briefing] Coral reported:", coralError);
+    }
+
     const date = new Date().toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",

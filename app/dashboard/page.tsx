@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Nav from "@/app/components/layout/Nav";
 import AISummary from "@/app/components/dashboard/AISummary";
 import EmailsCard from "@/app/components/dashboard/EmailsCard";
@@ -17,27 +17,42 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchBriefing = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/briefing", { method: "POST" });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/briefing", { method: "POST" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data: BriefingResponse = await res.json();
+        if (!cancelled) setBriefing(data);
+      } catch (err) {
+        if (!cancelled) {
+          console.error("[dashboard] Failed to load briefing:", err);
+          setError("Failed to load briefing. Please try again.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      const data: BriefingResponse = await res.json();
-      setBriefing(data);
-    } catch (err) {
-      console.error("[dashboard] Failed to load briefing:", err);
-      setError("Failed to load briefing. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    };
+    load();
+    return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    fetchBriefing();
-  }, [fetchBriefing]);
+  const handleRefresh = () => {
+    setLoading(true);
+    setError(null);
+    fetch("/api/briefing", { method: "POST" })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data: BriefingResponse) => setBriefing(data))
+      .catch((err) => {
+        console.error("[dashboard] Failed to refresh briefing:", err);
+        setError("Failed to refresh briefing. Please try again.");
+      })
+      .finally(() => setLoading(false));
+  };
 
   const connected = briefing?.source_status ?? {};
   const hasData = briefing?.data && Object.values(briefing.data).some((arr) => arr.length > 0);
@@ -51,7 +66,7 @@ export default function DashboardPage() {
           <div className="mb-6 p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--accent-red)] text-sm text-[var(--accent-red)] font-mono">
             {error}
             <button
-              onClick={fetchBriefing}
+              onClick={handleRefresh}
               className="ml-4 underline hover:no-underline"
             >
               Retry
@@ -65,7 +80,7 @@ export default function DashboardPage() {
               summary={briefing?.summary ?? ""}
               timestamp={briefing?.timestamp ?? ""}
               loading={loading}
-              onRefresh={fetchBriefing}
+              onRefresh={handleRefresh}
             />
 
             {!loading && isFullyDisconnected && (

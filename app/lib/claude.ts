@@ -1,12 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { env } from "./env";
+import { getEnv } from "./env";
 import type { BriefingData, ChatMessage } from "./types";
 
 let client: Anthropic | null = null;
 
 function getClient(): Anthropic {
   if (!client) {
-    client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+    client = new Anthropic({ apiKey: getEnv().ANTHROPIC_API_KEY });
   }
   return client;
 }
