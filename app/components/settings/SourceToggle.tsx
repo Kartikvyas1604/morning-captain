@@ -1,25 +1,24 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 
 interface SourceToggleProps {
   icon: React.ReactNode;
   name: string;
   description: string;
-  defaultEnabled?: boolean;
-  connected?: boolean;
+  connected: boolean;
+  enabled: boolean;
+  onToggle: () => void;
 }
 
 export default function SourceToggle({
   icon,
   name,
   description,
-  defaultEnabled = false,
-  connected = false,
+  connected,
+  enabled,
+  onToggle,
 }: SourceToggleProps) {
-  const [enabled, setEnabled] = useState(defaultEnabled);
-
   return (
     <div className="frosted-glass rounded-xl p-5 flex items-center justify-between">
       <div className="flex items-center gap-4">
@@ -29,17 +28,23 @@ export default function SourceToggle({
         <div>
           <h3 className="font-heading text-lg text-[var(--text-primary)]">{name}</h3>
           <p className="text-xs text-[var(--text-secondary)] font-mono mt-0.5">{description}</p>
-          {connected && (
-            <span className="inline-flex items-center gap-1 text-xs text-[var(--accent-teal)] font-mono mt-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow" />
-              Connected
-            </span>
-          )}
+          <span
+            className={`inline-flex items-center gap-1 text-xs font-mono mt-1 ${
+              connected ? "text-[var(--accent-teal)]" : "text-[var(--accent-red)]"
+            }`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                connected ? "bg-[var(--accent-teal)] animate-pulse-glow" : "bg-[var(--accent-red)]"
+              }`}
+            />
+            {connected ? "Connected" : "Disconnected"}
+          </span>
         </div>
       </div>
 
       <button
-        onClick={() => setEnabled(!enabled)}
+        onClick={onToggle}
         className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
           enabled ? "bg-[var(--accent-teal)]" : "bg-[var(--bg-tertiary)] border border-[var(--border)]"
         }`}
