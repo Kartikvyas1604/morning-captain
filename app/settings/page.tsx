@@ -113,42 +113,53 @@ export default function SettingsPage() {
   return (
     <>
       <Nav />
-      <main className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 py-12">
-        <div className="mb-10">
-          <h1 className="text-3xl sm:text-4xl font-heading text-[var(--text-primary)] mb-2">
-            Command Center
-          </h1>
-          <p className="text-sm text-[var(--text-secondary)] font-mono">
-            Connect your intelligence sources. Toggle each one on to include it in your daily briefing.
-          </p>
-          {!loading && (
-            <p className="text-xs text-[var(--accent-teal)] font-mono mt-2">
-              {allConnected} of {SOURCES.length} sources connected
+      <main className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen">
+        <div className="fixed top-1/3 left-1/3 w-80 h-80 rounded-full bg-[var(--accent-teal)] opacity-[0.02] blur-[100px] pointer-events-none" />
+        <div className="fixed bottom-1/3 right-1/3 w-96 h-96 rounded-full bg-[var(--accent-gold)] opacity-[0.015] blur-[120px] pointer-events-none" />
+
+        <div className="relative max-w-3xl mx-auto">
+          <div className="mb-10" style={{ opacity: 0, animation: "fade-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards" }}>
+            <h1 className="text-3xl sm:text-4xl font-heading text-[var(--text-primary)] mb-2 tracking-tight">
+              Command Center
+            </h1>
+            <p className="text-sm text-[var(--text-secondary)] font-mono tracking-wide">
+              Connect your intelligence sources. Toggle to include in your daily briefing.
             </p>
-          )}
-        </div>
+            {!loading && (
+              <div className="flex items-center gap-2 mt-3">
+                <div className="flex-1 h-px bg-gradient-to-r from-[var(--accent-teal)] to-transparent" />
+                <span className="text-xs text-[var(--accent-teal)] font-mono">
+                  {allConnected} of {SOURCES.length} active
+                </span>
+                <div className="flex-1 h-px bg-gradient-to-l from-[var(--accent-teal)] to-transparent" />
+              </div>
+            )}
+          </div>
 
-        <div className="space-y-4">
-          {SOURCES.map((source) => (
-            <SourceToggle
-              key={source.name}
-              icon={source.icon}
-              name={source.label}
-              description={source.description}
-              connected={sourceStatus[source.name] ?? false}
-              enabled={enabled[source.name] ?? false}
-              onToggle={() => toggleSource(source.name)}
-            />
-          ))}
-        </div>
+          <div className="space-y-3">
+            {SOURCES.map((source, i) => (
+              <div key={source.name} style={{ opacity: 0, animation: `fade-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${0.2 + i * 0.1}s forwards` }}>
+                <SourceToggle
+                  icon={source.icon}
+                  name={source.label}
+                  description={source.description}
+                  connected={sourceStatus[source.name] ?? false}
+                  enabled={enabled[source.name] ?? false}
+                  onToggle={() => toggleSource(source.name)}
+                />
+              </div>
+            ))}
+          </div>
 
-        <div className="mt-10 p-5 frosted-glass rounded-xl">
-          <h2 className="font-heading text-lg text-[var(--text-primary)] mb-2">Data Sources</h2>
-          <p className="text-xs text-[var(--text-secondary)] font-mono leading-relaxed">
-            Morning Captain uses Coral SQL to query your connected services. All data is encrypted in transit and at rest.
-            No data is stored permanently — only cached for your active session. Connect each source by configuring the
-            appropriate environment variables in your deployment.
-          </p>
+          <div className="mt-10 p-6 frosted-glass rounded-xl perspective-1000" style={{ opacity: 0, animation: "fade-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards" }}>
+            <div className="card-3d-layer">
+              <h2 className="font-heading text-lg text-[var(--text-primary)] mb-2">Data Security</h2>
+              <p className="text-xs text-[var(--text-secondary)] font-mono leading-relaxed">
+                Morning Captain uses Coral SQL to query your connected services. All data is encrypted in transit and at rest.
+                No data is stored permanently — only cached for your active session.
+              </p>
+            </div>
+          </div>
         </div>
       </main>
     </>
