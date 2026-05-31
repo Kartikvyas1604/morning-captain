@@ -6,20 +6,22 @@ interface BriefingCardProps {
   icon: React.ReactNode;
   title: string;
   count: number;
-  items: string[];
   accentColor?: string;
   index?: number;
   children?: React.ReactNode;
+  connected?: boolean;
+  loading?: boolean;
 }
 
 export default function BriefingCard({
   icon,
   title,
   count,
-  items,
   accentColor = "var(--accent-teal)",
   index = 0,
   children,
+  connected = true,
+  loading = false,
 }: BriefingCardProps) {
   return (
     <motion.div
@@ -30,35 +32,42 @@ export default function BriefingCard({
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <span style={{ color: accentColor }}>{icon}</span>
+          <span style={{ color: connected ? accentColor : "var(--text-secondary)" }}>
+            {icon}
+          </span>
           <h3 className="font-heading text-lg text-[var(--text-primary)]">{title}</h3>
+          {!connected && (
+            <span className="text-xs text-[var(--accent-red)] font-mono">Disconnected</span>
+          )}
         </div>
-        <span
-          className="text-xs font-mono px-2.5 py-1 rounded-full border"
-          style={{
-            borderColor: accentColor,
-            color: accentColor,
-          }}
-        >
-          {count}
-        </span>
-      </div>
-      <div className="space-y-2">
-        {items.map((item, i) => (
-          <p
-            key={i}
-            className="text-sm text-[var(--text-secondary)] font-mono leading-relaxed truncate"
+        {loading ? (
+          <span className="w-8 h-5 rounded-full bg-[var(--bg-tertiary)] animate-pulse" />
+        ) : (
+          <span
+            className="text-xs font-mono px-2.5 py-1 rounded-full border"
+            style={{
+              borderColor: count > 0 ? accentColor : "var(--border)",
+              color: count > 0 ? accentColor : "var(--text-secondary)",
+            }}
           >
-            {item}
-          </p>
-        ))}
+            {count}
+          </span>
+        )}
       </div>
-      {items.length > 3 && (
+      {loading ? (
+        <div className="space-y-2">
+          <div className="h-4 bg-[var(--bg-tertiary)] rounded animate-pulse" />
+          <div className="h-4 bg-[var(--bg-tertiary)] rounded animate-pulse w-3/4" />
+          <div className="h-4 bg-[var(--bg-tertiary)] rounded animate-pulse w-1/2" />
+        </div>
+      ) : (
+        children
+      )}
+      {!loading && count > 3 && (
         <button className="mt-3 text-xs text-[var(--accent-teal)] font-mono hover:underline transition-opacity">
           View all {count} items →
         </button>
       )}
-      {children}
     </motion.div>
   );
 }
