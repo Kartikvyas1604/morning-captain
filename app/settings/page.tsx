@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Nav from "@/app/components/layout/Nav";
@@ -13,7 +14,7 @@ const SOURCES = [
   { name: "slack", label: "Slack", desc: "Crow's nest chatter", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2a2.5 2.5 0 0 1 2.5 2.5v2.5h-2.5a2.5 2.5 0 0 1 0-5z"/><path d="M2 9.5A2.5 2.5 0 0 1 4.5 7H7v2.5a2.5 2.5 0 0 1-5 0z"/><path d="M9.5 22a2.5 2.5 0 0 1-2.5-2.5V17h2.5a2.5 2.5 0 0 1 0 5z"/><path d="M22 14.5a2.5 2.5 0 0 1-2.5 2.5H17v-2.5a2.5 2.5 0 0 1 5 0z"/></svg>, oauth: "slack" },
 ];
 
-export default function SettingsPage() {
+function SettingsContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<Record<string, boolean>>({});
   const [tokens, setTokens] = useState<Record<string, boolean>>({});
@@ -45,15 +46,12 @@ export default function SettingsPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/auth/session");
-        const { sessionId } = await res.json();
         const tokenRes = await fetch("/api/sources");
         const data = await tokenRes.json();
         const foundTokens: Record<string, boolean> = {};
         for (const s of SOURCES) {
-          const o = s.oauth;
           const hasIt = data.sources?.find((src: any) => src.name === s.name)?.connected ?? false;
-          foundTokens[o] = foundTokens[o] || hasIt;
+          foundTokens[s.oauth] = foundTokens[s.oauth] || hasIt;
         }
         setTokens(foundTokens);
       } catch { /* noop */ }
@@ -73,14 +71,9 @@ export default function SettingsPage() {
       setTokens((prev) => ({ ...prev, [oauthProvider]: false }));
       setStatus((prev) => {
         const next = { ...prev };
-        if (oauthProvider === "google") {
-          next.gmail = false;
-          next.calendar = false;
-        } else {
-          for (const k of Object.keys(next)) {
-            if (SOURCES.find((s) => s.name === k && s.oauth === oauthProvider)) {
-              next[k] = false;
-            }
+        for (const k of Object.keys(next)) {
+          if (SOURCES.find((s) => s.name === k && s.oauth === oauthProvider)) {
+            next[k] = false;
           }
         }
         return next;
@@ -90,76 +83,86 @@ export default function SettingsPage() {
     } catch { /* noop */ }
   };
 
-  const getOAuthPath = (oauthProvider: string) => {
-    return `/api/auth/${oauthProvider}`;
-  };
+  const getOAuthPath = (oauthProvider: string) => `/api/auth/${oauthProvider}`;
+  const getHasToken = (oauthProvider: string) => tokens[oauthProvider] ?? false;
 
-  const getHasToken = (oauthProvider: string) => {
-    return tokens[oauthProvider] ?? false;
-  };
+  return (
+    <main className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen wood-grain">
+      <div className="fixed top-1/3 left-1/4 w-72 h-72 rounded-full bg-[var(--accent-teal)] opacity-[0.02] blur-[100px] pointer-events-none" />
+      <div className="fixed bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[var(--accent-gold)] opacity-[0.015] blur-[120px] pointer-events-none" />
 
+      <div className="relative max-w-3xl mx-auto">
+        <div className="mb-10 anim-fade-up d1">
+          <h1 className="text-3xl font-heading text-[var(--text-primary)] tracking-tight">Captain&apos;s Quarters</h1>
+          <p className="text-sm text-[var(--text-secondary)] font-mono mt-1">Connect your fleet. Manage your intelligence sources.</p>
+          {!loading && (
+            <div className="flex items-center gap-3 mt-4">
+              <div className="flex-1 h-px bg-gradient-to-r from-[var(--accent-gold)] to-transparent" />
+              <span className="text-xs text-[var(--accent-gold)] font-mono">{active} of {SOURCES.length} ships in fleet</span>
+              <div className="flex-1 h-px bg-gradient-to-l from-[var(--accent-gold)] to-transparent" />
+            </div>
+          )}
+        </div>
+
+        {notice && (
+          <div className="mb-6 p-4 rounded-xl glass border border-[var(--accent-gold)] text-sm text-[var(--accent-gold)] font-mono anim-slide-down">
+            {notice}
+          </div>
+        )}
+
+        <div className="space-y-3">
+          {SOURCES.map((s, i) => (
+            <div key={s.name} className="anim-fade-up" style={{ animationDelay: `${0.15 + i * 0.08}s` }}>
+              <SourceToggle
+                icon={s.icon}
+                name={s.label}
+                description={s.desc}
+                connected={status[s.name] ?? false}
+                enabled={enabled[s.name] ?? false}
+                hasToken={getHasToken(s.oauth)}
+                oauthPath={getOAuthPath(s.oauth)}
+                onToggle={() => {
+                  if (getHasToken(s.oauth)) {
+                    handleDisconnect(s.oauth);
+                  } else {
+                    setEnabled((p) => ({ ...p, [s.name]: !p[s.name] }));
+                  }
+                }}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 p-6 glass rounded-xl anim-fade-up d10">
+          <h2 className="font-heading text-lg text-[var(--text-primary)] mb-2">Treasure Vault</h2>
+          <p className="text-xs text-[var(--text-secondary)] font-mono leading-relaxed">
+            All cargo encrypted in transit and at rest. No plunder stored permanently &mdash; cached only for your active voyage. OAuth tokens are stored server-side and never exposed.
+          </p>
+        </div>
+      </div>
+
+      <div className="fixed top-20 left-4 map-corner-tl opacity-20" />
+      <div className="fixed top-20 right-4 map-corner-tr opacity-20" />
+      <div className="fixed bottom-4 left-4 map-corner-bl opacity-20" />
+      <div className="fixed bottom-4 right-4 map-corner-br opacity-20" />
+    </main>
+  );
+}
+
+export default function SettingsPage() {
   return (
     <>
       <Nav />
-      <main className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen wood-grain">
-        <div className="fixed top-1/3 left-1/4 w-72 h-72 rounded-full bg-[var(--accent-teal)] opacity-[0.02] blur-[100px] pointer-events-none" />
-        <div className="fixed bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[var(--accent-gold)] opacity-[0.015] blur-[120px] pointer-events-none" />
-
-        <div className="relative max-w-3xl mx-auto">
-          <div className="mb-10 anim-fade-up d1">
-            <h1 className="text-3xl font-heading text-[var(--text-primary)] tracking-tight">Captain&apos;s Quarters</h1>
-            <p className="text-sm text-[var(--text-secondary)] font-mono mt-1">Connect your fleet. Manage your intelligence sources.</p>
-            {!loading && (
-              <div className="flex items-center gap-3 mt-4">
-                <div className="flex-1 h-px bg-gradient-to-r from-[var(--accent-gold)] to-transparent" />
-                <span className="text-xs text-[var(--accent-gold)] font-mono">{active} of {SOURCES.length} ships in fleet</span>
-                <div className="flex-1 h-px bg-gradient-to-l from-[var(--accent-gold)] to-transparent" />
-              </div>
-            )}
+      <Suspense fallback={
+        <main className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen wood-grain">
+          <div className="max-w-3xl mx-auto">
+            <div className="h-10 w-48 bg-[var(--bg-tertiary)] rounded animate-pulse mb-4" />
+            <div className="h-4 w-64 bg-[var(--bg-tertiary)] rounded animate-pulse" />
           </div>
-
-          {notice && (
-            <div className="mb-6 p-4 rounded-xl glass border border-[var(--accent-gold)] text-sm text-[var(--accent-gold)] font-mono anim-slide-down">
-              {notice}
-            </div>
-          )}
-
-          <div className="space-y-3">
-            {SOURCES.map((s, i) => (
-              <div key={s.name} className="anim-fade-up" style={{ animationDelay: `${0.15 + i * 0.08}s` }}>
-                <SourceToggle
-                  icon={s.icon}
-                  name={s.label}
-                  description={s.desc}
-                  connected={status[s.name] ?? false}
-                  enabled={enabled[s.name] ?? false}
-                  hasToken={getHasToken(s.oauth)}
-                  oauthPath={getOAuthPath(s.oauth)}
-                  onToggle={() => {
-                    if (getHasToken(s.oauth)) {
-                      handleDisconnect(s.oauth);
-                    } else {
-                      setEnabled((p) => ({ ...p, [s.name]: !p[s.name] }));
-                    }
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 p-6 glass rounded-xl anim-fade-up d10">
-            <h2 className="font-heading text-lg text-[var(--text-primary)] mb-2">Treasure Vault</h2>
-            <p className="text-xs text-[var(--text-secondary)] font-mono leading-relaxed">
-              All cargo encrypted in transit and at rest. No plunder stored permanently &mdash; cached only for your active voyage. OAuth tokens are stored server-side and never exposed.
-            </p>
-          </div>
-        </div>
-
-        <div className="fixed top-20 left-4 map-corner-tl opacity-20" />
-        <div className="fixed top-20 right-4 map-corner-tr opacity-20" />
-        <div className="fixed bottom-4 left-4 map-corner-bl opacity-20" />
-        <div className="fixed bottom-4 right-4 map-corner-br opacity-20" />
-      </main>
+        </main>
+      }>
+        <SettingsContent />
+      </Suspense>
     </>
   );
 }
