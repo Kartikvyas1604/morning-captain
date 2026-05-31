@@ -16,13 +16,15 @@ export default function SqlDrawer({ sql }: SqlDrawerProps) {
     <div className="mt-6">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 text-xs text-[var(--text-secondary)] font-mono hover:text-[var(--accent-teal)] transition-colors"
+        className="flex items-center gap-2 text-xs text-[var(--text-secondary)] font-mono hover:text-[var(--accent-teal)] transition-colors group"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${open ? "rotate-90" : ""}`}>
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
+        <div className="relative">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${open ? "rotate-90" : ""}`}>
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </div>
         <span>View Coral SQL Query</span>
-        <span className="w-2 h-2 rounded-full bg-[var(--accent-teal)] animate-pulse-glow" />
+        <span className="w-2 h-2 rounded-full bg-[var(--accent-teal)] animate-glow-pulse" />
       </button>
 
       <AnimatePresence>
@@ -31,10 +33,10 @@ export default function SqlDrawer({ sql }: SqlDrawerProps) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden mt-3"
           >
-            <div className="bg-[#080d14] border border-[var(--border)] rounded-lg p-4 overflow-x-auto">
+            <div className="bg-[#080d14] border border-[var(--border)] rounded-xl p-4 overflow-x-auto">
               <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[var(--border)]">
                 <div className="flex gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#e05c5c]" />
@@ -46,7 +48,7 @@ export default function SqlDrawer({ sql }: SqlDrawerProps) {
               <pre className="text-sm leading-relaxed font-mono">
                 <code>
                   {sql.split("\n").map((line, i) => (
-                    <div key={i} className="flex">
+                    <div key={i} className="flex hover:bg-white/[0.02] rounded px-1 -mx-1 transition-colors">
                       <span className="text-[var(--text-secondary)] w-8 text-right select-none shrink-0 mr-4 opacity-50">
                         {i + 1}
                       </span>
