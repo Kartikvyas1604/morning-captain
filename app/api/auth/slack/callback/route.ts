@@ -27,10 +27,11 @@ export async function GET(request: Request) {
   try {
     const appUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
     const redirectUri = `${appUrl}/api/auth/slack/callback`;
-    const tokens = await exchangeCode(OAUTH_PROVIDERS.slack, code, redirectUri);
+    const rawTokens: Record<string, unknown> = await exchangeCode(OAUTH_PROVIDERS.slack, code, redirectUri) as unknown as Record<string, unknown>;
 
-    if (tokens.access_token || tokens.authed_user?.access_token) {
-      setToken(sessionId, "slack", JSON.stringify(tokens));
+    const authedUser = rawTokens.authed_user as Record<string, unknown> | undefined;
+    if (rawTokens.access_token || authedUser?.access_token) {
+      setToken(sessionId, "slack", JSON.stringify(rawTokens));
     }
   } catch {
     redirect("/settings?error=token_exchange_failed");

@@ -1,6 +1,8 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { checkSourceHealth } from "@/app/lib/coral";
 import { hasSourceAccess } from "@/app/lib/env";
+import { hasToken } from "@/app/lib/store";
 import type { SourceName, SourceStatus } from "@/app/lib/types";
 
 const ALL_SOURCES: SourceName[] = [
@@ -13,15 +15,29 @@ const ALL_SOURCES: SourceName[] = [
 
 export async function GET() {
   const startTime = Date.now();
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("mc_session")?.value;
 
   try {
     const results = await Promise.allSettled(
       ALL_SOURCES.map(async (name): Promise<SourceStatus> => {
-        if (!hasSourceAccess(name)) {
+        const providerMap: Record<string, string> = {
+          gmail: "google",
+          calendar: "google",
+          notion: "notion",
+          github: "github",
+          slack: "slack",
+        };
+        const oauthProvider = providerMap[name];
+
+        const hasUserToken = sessionId ? hasToken(sessionId, oauthProvider) : false;
+        const hasAppCreds = hasSourceAccess(name);
+
+        if (!hasUserToken && !hasAppCreds) {
           return {
             name,
             connected: false,
-            error: `No credentials configured for ${name}`,
+            error: "Not connected",
           };
         }
 
