@@ -2,14 +2,20 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { executeBriefingQuery, BRIEFING_SQL } from "@/app/lib/coral";
 import { generateBriefing } from "@/app/lib/claude";
-import type { BriefingResponse } from "@/app/lib/types";
+import type { BriefingResponse, Persona } from "@/app/lib/types";
 
-export async function POST() {
+export async function POST(request: Request) {
   const startTime = Date.now();
 
   try {
     const cookieStore = await cookies();
     const sessionId = cookieStore.get("mc_session")?.value;
+
+    let persona: Persona = "deep-work";
+    try {
+      const body = await request.json();
+      if (body.persona) persona = body.persona;
+    } catch { /* no body, use default */ }
 
     const { data, sourceStatus, error: coralError } = await executeBriefingQuery(sessionId);
 
@@ -27,7 +33,7 @@ export async function POST() {
 
     if (hasData) {
       try {
-        summary = await generateBriefing(data, date);
+        summary = await generateBriefing(data, date, persona);
         aiGenerated = true;
       } catch (claudeErr) {
         console.error("[briefing] Claude error:", claudeErr);
