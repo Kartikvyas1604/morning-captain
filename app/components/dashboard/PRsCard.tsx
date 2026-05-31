@@ -1,13 +1,23 @@
+"use client";
+
 import BriefingCard from "./BriefingCard";
+import type { PullRequest } from "@/app/lib/types";
 
-const ITEMS = [
-  "#142 — refactor/api-versioning (needs_review)",
-  "#141 — feat/billing-overhaul (draft)",
-  "#140 — fix/auth-token-refresh (changes_requested)",
-  "#139 — chore/deps-update (approved ✅)",
-];
+interface PRsCardProps {
+  pull_requests: PullRequest[];
+  loading?: boolean;
+  connected?: boolean;
+}
 
-export default function PRsCard() {
+const statusColors: Record<string, string> = {
+  needs_review: "var(--accent-gold)",
+  changes_requested: "var(--accent-red)",
+  draft: "var(--text-secondary)",
+  approved: "var(--accent-teal)",
+  merged: "var(--accent-teal)",
+};
+
+export default function PRsCard({ pull_requests, loading = false, connected = true }: PRsCardProps) {
   return (
     <BriefingCard
       icon={
@@ -20,10 +30,32 @@ export default function PRsCard() {
         </svg>
       }
       title="Pull Requests"
-      count={ITEMS.length}
-      items={ITEMS.slice(0, 3)}
+      count={pull_requests.length}
       accentColor="var(--accent-teal)"
       index={3}
-    />
+      connected={connected}
+      loading={loading}
+    >
+      {pull_requests.length === 0 && !loading ? (
+        <p className="text-sm text-[var(--text-secondary)] font-mono italic">
+          No open pull requests
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {pull_requests.slice(0, 3).map((pr) => (
+            <p
+              key={pr.id}
+              className="text-sm text-[var(--text-secondary)] font-mono leading-relaxed truncate"
+            >
+              <span style={{ color: statusColors[pr.status] || "var(--text-secondary)" }}>
+                #{pr.id.slice(0, 6)}
+              </span>
+              {" — "}
+              {pr.title}
+            </p>
+          ))}
+        </div>
+      )}
+    </BriefingCard>
   );
 }
