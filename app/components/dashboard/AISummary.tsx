@@ -7,9 +7,12 @@ interface Props {
   timestamp: string;
   loading: boolean;
   onRefresh: () => void;
+  aiGenerated?: boolean;
 }
 
-export default function AISummary({ summary, timestamp, loading, onRefresh }: Props) {
+export default function AISummary({ summary, timestamp, loading, onRefresh, aiGenerated = false }: Props) {
+  const showFallback = !loading && !aiGenerated && summary.length > 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -28,7 +31,9 @@ export default function AISummary({ summary, timestamp, loading, onRefresh }: Pr
             <line x1="17" y1="12" x2="22" y2="12" />
           </svg>
           <h2 className="font-heading text-xl text-[var(--accent-gold)]">Captain&apos;s Log</h2>
-          <span className="text-[10px] px-2 py-0.5 rounded-full border border-[var(--accent-gold)] text-[var(--accent-gold)] font-mono tracking-wider uppercase">AI</span>
+          {aiGenerated && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full border border-[var(--accent-gold)] text-[var(--accent-gold)] font-mono tracking-wider uppercase">AI</span>
+          )}
         </div>
         <button onClick={onRefresh} disabled={loading} aria-label="Refresh" className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent-gold)] hover:bg-[var(--bg-tertiary)] transition-all disabled:opacity-50">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={loading ? "animate-spin" : ""}>
@@ -45,7 +50,9 @@ export default function AISummary({ summary, timestamp, loading, onRefresh }: Pr
           <div className="h-4 bg-[var(--bg-tertiary)] rounded animate-pulse w-5/6" />
           <div className="h-4 bg-[var(--bg-tertiary)] rounded animate-pulse w-2/3" />
         </div>
-      ) : (
+      ) : showFallback ? (
+        <p className="text-sm text-[var(--text-secondary)] font-mono italic">Briefing unavailable. Check the cards for details.</p>
+      ) : aiGenerated ? (
         <>
           <div className="space-y-3">
             {summary.split("\n").filter(Boolean).map((p, i) => (
@@ -60,7 +67,7 @@ export default function AISummary({ summary, timestamp, loading, onRefresh }: Pr
             <span className="flex items-center gap-1">Quartermaster <span className="text-[var(--accent-gold)] italic">AI</span></span>
           </div>
         </>
-      )}
+      ) : null}
     </motion.div>
   );
 }

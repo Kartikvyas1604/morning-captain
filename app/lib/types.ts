@@ -63,6 +63,7 @@ export interface BriefingResponse {
   sql: string;
   timestamp: string;
   source_status: Record<string, boolean>;
+  ai_generated: boolean;
 }
 
 export interface ChatMessage {

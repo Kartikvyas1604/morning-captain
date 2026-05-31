@@ -64,32 +64,26 @@ export default function DashboardPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-7 space-y-6">
-              <AISummary summary={briefing?.summary ?? ""} timestamp={briefing?.timestamp ?? ""} loading={loading} onRefresh={refresh} />
-
-              {!loading && allOff && (
-                <div className="p-6 glass rounded-xl text-center">
-                  <p className="text-sm text-[var(--text-secondary)] font-mono mb-3">No sources in sight, Captain.</p>
-                  <a href="/settings" className="inline-flex px-4 py-2 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-xs text-[var(--accent-teal)] font-mono hover:bg-[var(--border)] transition-colors">Open the Charts</a>
-                </div>
-              )}
-              {!loading && !hasData && !allOff && (
-                <div className="p-6 glass rounded-xl text-center">
-                  <p className="text-sm text-[var(--text-secondary)] font-mono">Calm waters. No new sightings.</p>
-                </div>
-              )}
-
-              <ChatInput briefingData={briefing?.data ?? null} />
-              <SqlDrawer sql={briefing?.sql ?? ""} />
+          {!loading && allOff && (
+            <div className="mb-6 p-6 glass rounded-xl text-center">
+              <p className="text-sm text-[var(--text-secondary)] font-mono mb-3">No sources in sight, Captain.</p>
+              <a href="/settings" className="inline-flex px-4 py-2 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-xs text-[var(--accent-teal)] font-mono hover:bg-[var(--border)] transition-colors">Open the Charts</a>
             </div>
+          )}
 
-            <div className="lg:col-span-5 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-7 space-y-4">
               <EmailsCard emails={briefing?.data?.emails ?? []} loading={loading} connected={st.gmail ?? false} />
               <MeetingsCard meetings={briefing?.data?.meetings ?? []} loading={loading} connected={st.calendar ?? false} />
               <TasksCard tasks={briefing?.data?.tasks ?? []} loading={loading} connected={st.notion ?? false} />
               <PRsCard pull_requests={briefing?.data?.pull_requests ?? []} loading={loading} connected={st.github ?? false} />
               <SlackCard slack_messages={briefing?.data?.slack_messages ?? []} loading={loading} connected={st.slack ?? false} />
+            </div>
+
+            <div className="lg:col-span-5 space-y-6">
+              <AISummary summary={briefing?.summary ?? ""} timestamp={briefing?.timestamp ?? ""} loading={loading} onRefresh={refresh} aiGenerated={briefing?.ai_generated ?? false} />
+              <ChatInput briefingData={briefing?.data ?? null} />
+              <SqlDrawer sql={briefing?.sql ?? ""} />
             </div>
           </div>
         </div>
