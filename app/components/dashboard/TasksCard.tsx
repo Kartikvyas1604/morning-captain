@@ -9,19 +9,16 @@ interface TasksCardProps {
   connected?: boolean;
 }
 
-const priorityColors: Record<string, string> = {
-  high: "var(--accent-red)",
-  medium: "var(--accent-gold)",
-  normal: "var(--accent-teal)",
-  low: "var(--text-secondary)",
-};
-
 const priorityLabels: Record<string, string> = {
   high: "🔴 High",
   medium: "🟡 Med",
   normal: "🟢 Norm",
   low: "⚪ Low",
 };
+
+function priorityClass(p: string): string {
+  return `priority-${p}`;
+}
 
 export default function TasksCard({ tasks, loading = false, connected = true }: TasksCardProps) {
   return (
@@ -50,7 +47,7 @@ export default function TasksCard({ tasks, loading = false, connected = true }: 
               key={task.id}
               className="text-sm text-[var(--text-secondary)] font-mono leading-relaxed truncate"
             >
-              <span style={{ color: priorityColors[task.priority] || "var(--text-secondary)" }}>
+              <span className={priorityClass(task.priority)}>
                 {priorityLabels[task.priority] || task.priority}
               </span>
               {" "}

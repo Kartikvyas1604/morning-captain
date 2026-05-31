@@ -47,10 +47,10 @@ export default function Greeting() {
           </span>
         ))}
       </h1>
-      <p className="text-lg sm:text-xl text-[var(--accent-teal)] font-heading italic mb-2 opacity-0 animate-fade-in-up" style={{ animationDelay: "0.8s", animationFillMode: "forwards" }}>
+      <p className="text-lg sm:text-xl text-[var(--accent-teal)] font-heading italic mb-2 fade-in-delay-1">
         Your command center is ready
       </p>
-      <div className="opacity-0 animate-fade-in-up" style={{ animationDelay: "1s", animationFillMode: "forwards" }}>
+      <div className="fade-in-delay-2">
         <p className="text-sm text-[var(--text-secondary)] font-mono">{date}</p>
         <p className="text-2xl font-heading text-[var(--text-primary)]">{time}</p>
       </div>

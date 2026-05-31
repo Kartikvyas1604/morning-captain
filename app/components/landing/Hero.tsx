@@ -12,18 +12,18 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0 animate-fade-in-up" style={{ animationDelay: "1.5s", animationFillMode: "forwards" }}>
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0 animate-fade-in-up delay-1">
         <div className="flex items-center gap-6 text-xs text-[var(--text-secondary)] font-mono">
           <span className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow" />
             Gmail
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow" style={{ animationDelay: "0.5s" }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow delay-2" style={{ animationDelay: "0.5s" }} />
             Calendar
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow" style={{ animationDelay: "1s" }} />
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] animate-pulse-glow delay-3" />
             Notion
           </span>
           <span className="flex items-center gap-1.5">

@@ -22,7 +22,7 @@ export default function SourceToggle({
   return (
     <div className="frosted-glass rounded-xl p-5 flex items-center justify-between">
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center" style={{ color: enabled ? "var(--accent-teal)" : "var(--text-secondary)" }}>
+        <div className={`w-10 h-10 rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center ${enabled ? "icon-box-enabled" : "icon-box-disabled"}`}>
           {icon}
         </div>
         <div>
