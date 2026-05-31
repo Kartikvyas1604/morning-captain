@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import Nav from "@/app/components/layout/Nav";
@@ -41,7 +41,6 @@ function SettingsContent() {
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState("");
   const [noticeType, setNoticeType] = useState<"success" | "error" | "info">("info");
-  const [isChaining, setIsChaining] = useState(false);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -63,20 +62,6 @@ function SettingsContent() {
     finally { setLoading(false); }
   }, []);
 
-  const statusRef = useRef(status);
-  statusRef.current = status;
-  const tokensRef = useRef(tokens);
-  tokensRef.current = tokens;
-
-  const connectNext = useCallback(() => {
-    const unconnected = SOURCES.find((s) => !statusRef.current[s.name] && !tokensRef.current[s.oauth]);
-    if (unconnected) {
-      window.location.href = `/api/auth/${unconnected.oauth}`;
-    } else {
-      setIsChaining(false);
-    }
-  }, []);
-
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -89,28 +74,20 @@ function SettingsContent() {
     if (connected) {
       setNotice(`${oauthProviderLabel[connected] || connected} connected!`);
       setNoticeType("success");
-      setIsChaining(true);
     }
     if (error) {
       setNotice(`Connection failed: ${error.replace(/_/g, " ")}`);
       setNoticeType("error");
     }
     if (connected || error) {
-      setTimeout(() => setNotice(""), 5000);
+      setTimeout(() => setNotice(""), 6000);
       window.history.replaceState({}, "", "/settings");
-      fetchStatus().then(() => {
-        if (connected) {
-          setTimeout(connectNext, 1200);
-        }
-      });
-    } else {
-      fetchStatus();
     }
-  }, [searchParams, fetchStatus, connectNext]);
+    fetchStatus();
+  }, [searchParams, fetchStatus]);
 
   const connectedCount = Object.values(status).filter(Boolean).length;
   const enabledCount = Object.values(enabled).filter(Boolean).length;
-  const progress = Math.round((connectedCount / SOURCES.length) * 100);
 
   const handleToggle = (name: string) => {
     setEnabled((prev) => {
@@ -145,7 +122,6 @@ function SettingsContent() {
   };
 
   const getHasToken = (oauthProvider: string) => tokens[oauthProvider] ?? false;
-  const isFullyConnected = connectedCount === SOURCES.length;
 
   return (
     <main className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen wood-grain">
@@ -161,27 +137,11 @@ function SettingsContent() {
             </div>
             {!loading && (
               <div className="hidden sm:flex items-center gap-2">
-                <span className="text-[10px] font-mono text-[var(--text-secondary)]">Fleet</span>
-                <div className="w-20 h-1.5 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="h-full rounded-full bg-gradient-to-r from-[var(--accent-gold)] to-[var(--accent-teal)]"
-                  />
-                </div>
+                <span className="text-[10px] font-mono text-[var(--text-secondary)]">Connected</span>
                 <span className="text-[10px] font-mono text-[var(--accent-gold)]">{connectedCount}/{SOURCES.length}</span>
               </div>
             )}
           </div>
-
-          {!loading && (
-            <div className="flex items-center gap-3 mt-5">
-              <div className="flex-1 h-px bg-gradient-to-r from-[var(--accent-gold)] to-transparent" />
-              <span className="text-xs text-[var(--accent-gold)] font-mono">{connectedCount} of {SOURCES.length} connected</span>
-              <div className="flex-1 h-px bg-gradient-to-l from-[var(--accent-gold)] to-transparent" />
-            </div>
-          )}
         </div>
 
         {notice && (
@@ -198,56 +158,6 @@ function SettingsContent() {
               {noticeType === "success" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>}
               {noticeType === "error" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>}
               {notice}
-              {isChaining && !isFullyConnected && (
-                <span className="ml-2 text-[10px] opacity-70">Redirecting to next source...</span>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {!loading && !isFullyConnected && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8 p-8 glass rounded-xl border border-[var(--accent-gold)]/20 bg-gradient-to-br from-[var(--accent-gold)]/[0.04] to-transparent text-center"
-          >
-            <div className="w-16 h-16 rounded-full bg-[var(--accent-gold)]/10 border border-[var(--accent-gold)]/20 flex items-center justify-center mx-auto mb-4">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-              </svg>
-            </div>
-            <h2 className="font-heading text-xl text-[var(--text-primary)] mb-2">Connect Your Fleet</h2>
-            <p className="text-sm text-[var(--text-secondary)] font-mono max-w-md mx-auto mb-6">
-              Click <strong className="text-[var(--accent-gold)]">Connect All</strong> to authorize all sources in sequence. You&apos;ll be redirected to each provider, authorize once, and automatically continue to the next.
-            </p>
-            <a
-              href={`/api/auth/${SOURCES.find((s) => !status[s.name] && !getHasToken(s.oauth))?.oauth ?? "google"}`}
-              className="relative group/btn inline-flex items-center gap-3 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[var(--accent-gold)] to-[var(--accent-teal)] text-sm font-mono font-semibold text-[var(--bg-primary)] hover:shadow-[0_0_32px_rgba(201,147,58,0.3)] transition-all duration-300"
-            >
-              <div className="absolute -inset-1 bg-gradient-to-r from-[var(--accent-gold)] to-[var(--accent-teal)] rounded-xl opacity-0 group-hover/btn:opacity-20 blur-md transition-opacity duration-500" />
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-              </svg>
-              Connect All
-              <span className="text-[10px] opacity-60">({SOURCES.length - connectedCount} remaining)</span>
-            </a>
-          </motion.div>
-        )}
-
-        {!loading && isFullyConnected && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8 p-6 glass rounded-xl border-[var(--accent-teal)]/20 bg-gradient-to-br from-[var(--accent-teal)]/[0.04] to-transparent"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[var(--accent-teal)]/10 border border-[var(--accent-teal)]/20 flex items-center justify-center shrink-0">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
-              </div>
-              <div>
-                <h2 className="font-heading text-lg text-[var(--accent-teal)]">Full Fleet Present</h2>
-                <p className="text-xs text-[var(--text-secondary)] font-mono mt-0.5">All {SOURCES.length} sources connected. Your daily briefing will include every source. Use the toggles below to enable or disable individual sources.</p>
-              </div>
             </div>
           </motion.div>
         )}
