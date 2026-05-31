@@ -77,3 +77,21 @@ export interface SourceStatus {
 }
 
 export type SourceName = "gmail" | "calendar" | "notion" | "github" | "slack";
+
+export interface OAuthProviderConfig {
+  name: string;
+  label: string;
+  authorizeUrl: string;
+  tokenUrl: string;
+  scopes: string[];
+  clientIdEnv: string;
+  clientSecretEnv: string;
+}
+
+export interface StoredTokens {
+  access_token: string;
+  refresh_token?: string;
+  expires_at?: number;
+  token_type?: string;
+  scope?: string;
+}
