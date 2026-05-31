@@ -3,33 +3,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const SQL_QUERY = `SELECT
-  e.subject, e.sender, e.snippet, e.received_at
-FROM gmail.inbox e
-WHERE e.is_unread = TRUE
-ORDER BY e.received_at DESC
-LIMIT 12;
+interface SqlDrawerProps {
+  sql: string;
+}
 
-SELECT
-  c.title, c.start_time, c.end_time, c.attendees
-FROM calendar.events c
-WHERE c.date = CURRENT_DATE
-ORDER BY c.start_time;
-
-SELECT
-  t.title, t.due_date, t.priority, t.source
-FROM notion.tasks t
-WHERE t.status = 'in_progress'
-ORDER BY t.priority DESC;
-
-SELECT
-  p.title, p.repository, p.status, p.updated_at
-FROM github.pull_requests p
-WHERE p.status IN ('needs_review', 'draft')
-ORDER BY p.updated_at DESC;`;
-
-export default function SqlDrawer() {
+export default function SqlDrawer({ sql }: SqlDrawerProps) {
   const [open, setOpen] = useState(false);
+
+  if (!sql) return null;
 
   return (
     <div className="mt-6">
@@ -64,7 +45,7 @@ export default function SqlDrawer() {
               </div>
               <pre className="text-sm leading-relaxed font-mono">
                 <code>
-                  {SQL_QUERY.split("\n").map((line, i) => (
+                  {sql.split("\n").map((line, i) => (
                     <div key={i} className="flex">
                       <span className="text-[var(--text-secondary)] w-8 text-right select-none shrink-0 mr-4 opacity-50">
                         {i + 1}
@@ -83,7 +64,7 @@ export default function SqlDrawer() {
 }
 
 function highlightSQL(line: string) {
-  const keywords = ["SELECT", "FROM", "WHERE", "ORDER BY", "LIMIT", "AND", "OR", "AS", "DESC", "ASC", "TRUE", "IN", "CURRENT_DATE", "NOT", "JOIN", "ON", "LEFT", "RIGHT", "INNER", "OUTER"];
+  const keywords = ["SELECT", "FROM", "WHERE", "ORDER BY", "LIMIT", "AND", "OR", "AS", "DESC", "ASC", "TRUE", "IN", "CURRENT_DATE", "NOT", "JOIN", "ON", "LEFT", "RIGHT", "INNER", "OUTER", "UNION", "ALL", "CASE", "WHEN", "THEN", "ELSE", "END", "CONCAT", "DATE", "INTERVAL"];
   const parts: React.ReactNode[] = [];
   let remaining = line;
 
@@ -119,6 +100,11 @@ function highlightSQL(line: string) {
           <span key={`punct-${parts.length}`} className="text-[var(--text-secondary)]">{remaining[0]}</span>
         );
         remaining = remaining.slice(1);
+      } else if (remaining.startsWith("--")) {
+        parts.push(
+          <span key={`comment-${parts.length}`} className="text-[var(--text-secondary)] opacity-50">{remaining}</span>
+        );
+        remaining = "";
       } else {
         parts.push(remaining[0]);
         remaining = remaining.slice(1);
