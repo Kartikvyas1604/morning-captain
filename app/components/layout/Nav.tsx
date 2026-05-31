@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const links = [
-  { href: "/", label: "Home" },
+  { href: "/", label: "Deck" },
   { href: "/dashboard", label: "Bridge" },
-  { href: "/settings", label: "Command" },
+  { href: "/settings", label: "Quarters" },
 ];
 
 export default function Nav() {
@@ -42,15 +42,24 @@ export default function Nav() {
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 sm:px-8 py-4">
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative w-8 h-8 flex items-center justify-center">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">
-              <path d="M12 2a8 8 0 0 0-8 8c0 5 8 12 8 12s8-7 8-12a8 8 0 0 0-8-8z" />
-              <circle cx="12" cy="10" r="3" />
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12">
+              <circle cx="12" cy="12" r="10" stroke="var(--accent-gold)" />
+              <circle cx="12" cy="12" r="2" fill="var(--accent-teal)" stroke="var(--accent-teal)" />
+              <line x1="12" y1="2" x2="12" y2="7" />
+              <line x1="12" y1="17" x2="12" y2="22" />
+              <line x1="2" y1="12" x2="7" y2="12" />
+              <line x1="17" y1="12" x2="22" y2="12" />
+              <line x1="4.93" y1="4.93" x2="8.46" y2="8.46" />
+              <line x1="15.54" y1="15.54" x2="19.07" y2="19.07" />
+              <line x1="4.93" y1="19.07" x2="8.46" y2="15.54" />
+              <line x1="15.54" y1="8.46" x2="19.07" y2="4.93" />
             </svg>
             <div className="absolute inset-0 bg-[var(--accent-teal)]/10 blur-md rounded-full group-hover:opacity-20 transition-opacity" />
           </div>
           <span className="font-heading text-xl tracking-wide text-[var(--text-primary)]">
             Morning Captain
           </span>
+          <span className="text-[10px] font-mono text-[var(--accent-gold)] italic hidden sm:inline opacity-60">⚓</span>
         </Link>
 
         <div className="flex items-center gap-6">
@@ -75,10 +84,10 @@ export default function Nav() {
 
           {isHome ? (
             <Link href="/dashboard">
-              <button className="relative group/btn">
+              <button className="relative group/btn" aria-label="Set Sail">
                 <div className="absolute -inset-1 bg-gradient-to-r from-[var(--accent-gold)] to-[var(--accent-teal)] rounded-full opacity-20 group-hover/btn:opacity-40 blur-md transition-opacity duration-500" />
-                <span className="relative px-5 py-2 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] text-xs text-[var(--accent-teal)] font-mono tracking-wide hover:border-[var(--accent-teal)] transition-all duration-300 block">
-                  Launch
+                <span className="relative px-5 py-2 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] text-xs text-[var(--accent-gold)] font-mono tracking-wide hover:border-[var(--accent-gold)] transition-all duration-300 block">
+                  Set Sail ↗
                 </span>
               </button>
             </Link>

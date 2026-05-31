@@ -39,6 +39,14 @@ export default function ChatInput({ briefingData }: Props) {
 
   return (
     <div className="mt-6">
+      <div className="flex items-center gap-2 mb-3">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2a4 4 0 0 1 4 4c0 2-2 4-4 4s-4-2-4-4 2-4 4-4z" />
+          <path d="M20 18c0-4-4-8-8-8s-8 4-8 8" />
+        </svg>
+        <span className="text-xs font-mono text-[var(--accent-gold)] tracking-wider uppercase">Message in a Bottle</span>
+      </div>
+
       {messages.length > 0 && (
         <div className="mb-4 space-y-3 max-h-60 overflow-y-auto pr-1">
           {messages.map((m, i) => (
@@ -58,7 +66,7 @@ export default function ChatInput({ briefingData }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder={briefingData ? "Ask about your briefing..." : "Load your briefing first"}
+          placeholder={briefingData ? "Ask your quartermaster..." : "Load your briefing first"}
           disabled={!briefingData || sending}
           className="relative w-full px-6 py-4 pr-14 rounded-full bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-primary)] font-mono text-sm placeholder:text-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent-teal)] transition-all duration-300 disabled:opacity-50"
         />
@@ -70,7 +78,7 @@ export default function ChatInput({ briefingData }: Props) {
       </div>
 
       <div className="flex flex-wrap gap-2 mt-3 text-xs text-[var(--text-secondary)] font-mono px-2">
-        <span>Ask:</span>
+        <span className="text-[var(--accent-gold)]">Ask:</span>
         {suggestions.map((s) => (
           <button key={s} onClick={() => setQuery(s)} className="hover:text-[var(--accent-teal)] transition-colors">{s}</button>
         ))}

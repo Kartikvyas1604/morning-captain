@@ -8,6 +8,8 @@
   --accent-gold: #c9933a;
   --accent-teal: #2dd4bf;
   --accent-red: #e05c5c;
+  --accent-wood: #6b5344;
+  --accent-parchment: #d4c5a9;
   --text-primary: #e8e4d9;
   --text-secondary: #7a8499;
   --border: #1e2a3a;
@@ -20,6 +22,8 @@
   --color-accent-gold: #c9933a;
   --color-accent-teal: #2dd4bf;
   --color-accent-red: #e05c5c;
+  --color-accent-wood: #6b5344;
+  --color-accent-parchment: #d4c5a9;
   --color-text-primary: #e8e4d9;
   --color-text-secondary: #7a8499;
   --color-border: #1e2a3a;
@@ -202,3 +206,134 @@ body {
 .d15 { animation-delay: 1.5s; }
 .d20 { animation-delay: 2s; }
 .d25 { animation-delay: 2.5s; }
+
+/* ── Pirate Keyframes ── */
+
+@keyframes shipRock {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes waveDrift {
+  0%, 100% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+}
+
+@keyframes treasureGlow {
+  0%, 100% { box-shadow: 0 0 12px rgba(201,147,58,0.15), 0 0 24px rgba(201,147,58,0.05); }
+  50% { box-shadow: 0 0 24px rgba(201,147,58,0.3), 0 0 48px rgba(201,147,58,0.1); }
+}
+
+@keyframes flagWave {
+  0%, 100% { transform: skewY(0deg); }
+  25% { transform: skewY(2deg); }
+  75% { transform: skewY(-1deg); }
+}
+
+@keyframes mapReveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes fogDrift {
+  0% { transform: translateX(-10%); opacity: 0; }
+  20% { opacity: 0.06; }
+  80% { opacity: 0.06; }
+  100% { transform: translateX(110%); opacity: 0; }
+}
+
+/* ── Pirate Animations ── */
+
+.anim-ship-rock { animation: shipRock 6s ease-in-out infinite; }
+.anim-wave-drift { animation: waveDrift 4s ease-in-out infinite; }
+.anim-treasure-glow { animation: treasureGlow 3s ease-in-out infinite; }
+.anim-flag-wave { animation: flagWave 3s ease-in-out infinite; }
+.anim-map-reveal { animation: mapReveal 1.2s cubic-bezier(0.16,1,0.3,1) forwards; }
+.anim-fog { animation: fogDrift 12s linear infinite; }
+
+/* ── Parchment texture ── */
+
+.parchment {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(107,83,68,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(212,197,169,0.03) 0%, transparent 50%),
+    var(--bg-primary);
+}
+
+/* ── Wood grain ── */
+
+.wood-grain {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      rgba(107,83,68,0.06) 1px,
+      transparent 2px,
+      transparent 8px
+    ),
+    var(--bg-primary);
+}
+
+/* ── Pirate flag ── */
+
+.pirate-flag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pirate-flag::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: linear-gradient(to bottom, var(--accent-wood), transparent);
+  border-radius: 1px;
+}
+
+.pirate-flag::after {
+  content: "🏴";
+  font-size: 14px;
+  animation: flagWave 2s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+/* ── Ship silhouette bottom ── */
+
+.ship-silhouette {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  height: 140px;
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+/* ── Treasure map corner accents ── */
+
+.map-corner-tl,
+.map-corner-tr,
+.map-corner-bl,
+.map-corner-br {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+}
+.map-corner-tl { top: 0; left: 0; border-top: 1px solid rgba(201,147,58,0.15); border-left: 1px solid rgba(201,147,58,0.15); }
+.map-corner-tr { top: 0; right: 0; border-top: 1px solid rgba(201,147,58,0.15); border-right: 1px solid rgba(201,147,58,0.15); }
+.map-corner-bl { bottom: 0; left: 0; border-bottom: 1px solid rgba(201,147,58,0.15); border-left: 1px solid rgba(201,147,58,0.15); }
+.map-corner-br { bottom: 0; right: 0; border-bottom: 1px solid rgba(201,147,58,0.15); border-right: 1px solid rgba(201,147,58,0.15); }
+
+/* ── Glass variants ── */
+
+.glass-pirate {
+  background: rgba(15, 21, 32, 0.65);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 0 0 1px rgba(201,147,58,0.06), 0 0 24px rgba(201,147,58,0.03);
+}

@@ -26,13 +26,13 @@ export default function BriefingCard({ icon, title, count, variant = "teal", ind
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 + index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="glass rounded-xl p-5"
+      className="glass-pirate rounded-xl p-5 parchment"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <span className={accent}>{icon}</span>
           <h3 className="font-heading text-lg text-[var(--text-primary)]">{title}</h3>
-          {!connected && <span className="text-xs text-[var(--accent-red)] font-mono">offline</span>}
+          {!connected && <span className="text-xs text-[var(--accent-red)] font-mono">adrift</span>}
         </div>
         {loading ? (
           <span className="w-8 h-5 rounded-full bg-[var(--bg-tertiary)] animate-pulse" />

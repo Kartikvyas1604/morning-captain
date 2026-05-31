@@ -15,8 +15,8 @@ export default function SqlDrawer({ sql }: Props) {
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${open ? "rotate-90" : ""}`}>
           <polyline points="9 18 15 12 9 6" />
         </svg>
-        Coral Query
-        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] anim-pulse" />
+        Captain&apos;s Charts
+        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-gold)] anim-pulse" />
       </button>
 
       <AnimatePresence>

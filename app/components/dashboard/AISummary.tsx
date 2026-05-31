@@ -15,13 +15,17 @@ export default function AISummary({ summary, timestamp, loading, onRefresh }: Pr
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-      className="glass-gold rounded-xl p-6"
+      className="glass-pirate rounded-xl p-6 parchment"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2a4 4 0 0 1 4 4c0 2-2 4-4 4s-4-2-4-4 2-4 4-4z" />
-            <path d="M20 18c0-4-4-8-8-8s-8 4-8 8" />
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="3" fill="var(--accent-gold)" fillOpacity="0.15" />
+            <line x1="12" y1="2" x2="12" y2="7" />
+            <line x1="12" y1="17" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="7" y2="12" />
+            <line x1="17" y1="12" x2="22" y2="12" />
           </svg>
           <h2 className="font-heading text-xl text-[var(--accent-gold)]">Captain&apos;s Log</h2>
           <span className="text-[10px] px-2 py-0.5 rounded-full border border-[var(--accent-gold)] text-[var(--accent-gold)] font-mono tracking-wider uppercase">AI</span>
@@ -51,9 +55,9 @@ export default function AISummary({ summary, timestamp, loading, onRefresh }: Pr
           <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center justify-between text-xs text-[var(--text-secondary)] font-mono">
             <span className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-teal)] anim-pulse" />
-              {timestamp ? new Date(timestamp).toLocaleTimeString() : "—"}
+              {timestamp ? new Date(timestamp).toLocaleTimeString() : "\u2014"}
             </span>
-            <span>Claude AI</span>
+            <span className="flex items-center gap-1">Quartermaster <span className="text-[var(--accent-gold)] italic">AI</span></span>
           </div>
         </>
       )}

@@ -18,102 +18,65 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
+    let c = false;
+    (async () => {
       try {
         const res = await fetch("/api/briefing", { method: "POST" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: BriefingResponse = await res.json();
-        if (!cancelled) setBriefing(data);
+        if (!c) setBriefing(data);
       } catch (err) {
-        if (!cancelled) {
-          console.error("[dashboard] Failed to load briefing:", err);
-          setError("Failed to load briefing. Please try again.");
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    load();
-    return () => { cancelled = true; };
+        if (!c) { console.error(err); setError("Failed to load briefing."); }
+      } finally { if (!c) setLoading(false); }
+    })();
+    return () => { c = true; };
   }, []);
 
-  const handleRefresh = () => {
-    setLoading(true);
-    setError(null);
+  const refresh = () => {
+    setLoading(true); setError(null);
     fetch("/api/briefing", { method: "POST" })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((data: BriefingResponse) => setBriefing(data))
-      .catch((err) => {
-        console.error("[dashboard] Failed to refresh briefing:", err);
-        setError("Failed to refresh briefing. Please try again.");
-      })
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((d: BriefingResponse) => setBriefing(d))
+      .catch(() => setError("Failed to refresh."))
       .finally(() => setLoading(false));
   };
 
-  const connected = briefing?.source_status ?? {};
-  const hasData = briefing?.data && Object.values(briefing.data).some((arr) => arr.length > 0);
-  const isFullyDisconnected = briefing?.source_status && Object.values(briefing.source_status).every((v) => !v);
+  const st = briefing?.source_status ?? {};
+  const hasData = briefing?.data && Object.values(briefing.data).some((a) => a.length > 0);
+  const allOff = st && Object.values(st).every((v) => !v);
 
   return (
     <>
       <Nav />
-      <main className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen">
-        {/* Background depth */}
-        <div className="fixed top-1/4 left-1/4 w-96 h-96 rounded-full bg-[var(--accent-gold)] opacity-[0.02] blur-[120px] pointer-events-none" />
-        <div className="fixed bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-[var(--accent-teal)] opacity-[0.015] blur-[150px] pointer-events-none" />
+      <main className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen wood-grain">
+        <div className="fixed top-1/4 left-1/4 w-80 h-80 rounded-full bg-[var(--accent-gold)] opacity-[0.02] blur-[100px] pointer-events-none" />
+        <div className="fixed bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-[var(--accent-teal)] opacity-[0.015] blur-[120px] pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto">
-          {/* Page header */}
-          <div className="mb-8" style={{ opacity: 0, animation: "fade-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards" }}>
-            <h1 className="text-3xl sm:text-4xl font-heading text-[var(--text-primary)] tracking-tight">
-              The Bridge
-            </h1>
-            <p className="text-sm text-[var(--text-secondary)] font-mono mt-2 tracking-wide">
-              Your daily operational overview. All sources, one view.
-            </p>
+          <div className="mb-8 anim-fade-up d1">
+            <h1 className="text-3xl font-heading text-[var(--text-primary)] tracking-tight">The Captain&apos;s Deck</h1>
+            <p className="text-sm text-[var(--text-secondary)] font-mono mt-1">All hands on deck — your daily intelligence.</p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--accent-red)] text-sm text-[var(--accent-red)] font-mono animate-fade-scale">
-              {error}
-              <button onClick={handleRefresh} className="ml-4 underline hover:no-underline">Retry</button>
+            <div className="mb-6 p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--accent-red)] text-sm text-[var(--accent-red)] font-mono anim-scale-in">
+              Arrr! {error} <button onClick={refresh} className="ml-4 underline">Retry</button>
             </div>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-7 space-y-6">
-              <AISummary
-                summary={briefing?.summary ?? ""}
-                timestamp={briefing?.timestamp ?? ""}
-                loading={loading}
-                onRefresh={handleRefresh}
-              />
+              <AISummary summary={briefing?.summary ?? ""} timestamp={briefing?.timestamp ?? ""} loading={loading} onRefresh={refresh} />
 
-              {!loading && isFullyDisconnected && (
-                <div className="p-6 frosted-glass rounded-xl text-center perspective-1000">
-                  <div className="card-3d-layer">
-                    <p className="text-sm text-[var(--text-secondary)] font-mono mb-3">No data sources connected.</p>
-                    <a
-                      href="/settings"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-xs text-[var(--accent-teal)] font-mono hover:bg-[var(--border)] transition-colors"
-                    >
-                      Open Command Center
-                    </a>
-                  </div>
+              {!loading && allOff && (
+                <div className="p-6 glass rounded-xl text-center">
+                  <p className="text-sm text-[var(--text-secondary)] font-mono mb-3">No sources in sight, Captain.</p>
+                  <a href="/settings" className="inline-flex px-4 py-2 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-xs text-[var(--accent-teal)] font-mono hover:bg-[var(--border)] transition-colors">Open the Charts</a>
                 </div>
               )}
-
-              {!loading && !hasData && !isFullyDisconnected && (
-                <div className="p-6 frosted-glass rounded-xl text-center perspective-1000">
-                  <div className="card-3d-layer">
-                    <p className="text-sm text-[var(--text-secondary)] font-mono">
-                      Briefing loaded — no new activity across your sources.
-                    </p>
-                  </div>
+              {!loading && !hasData && !allOff && (
+                <div className="p-6 glass rounded-xl text-center">
+                  <p className="text-sm text-[var(--text-secondary)] font-mono">Calm waters. No new sightings.</p>
                 </div>
               )}
 
@@ -122,34 +85,20 @@ export default function DashboardPage() {
             </div>
 
             <div className="lg:col-span-5 space-y-4">
-              <EmailsCard
-                emails={briefing?.data?.emails ?? []}
-                loading={loading}
-                connected={connected.gmail ?? false}
-              />
-              <MeetingsCard
-                meetings={briefing?.data?.meetings ?? []}
-                loading={loading}
-                connected={connected.calendar ?? false}
-              />
-              <TasksCard
-                tasks={briefing?.data?.tasks ?? []}
-                loading={loading}
-                connected={connected.notion ?? false}
-              />
-              <PRsCard
-                pull_requests={briefing?.data?.pull_requests ?? []}
-                loading={loading}
-                connected={connected.github ?? false}
-              />
-              <SlackCard
-                slack_messages={briefing?.data?.slack_messages ?? []}
-                loading={loading}
-                connected={connected.slack ?? false}
-              />
+              <EmailsCard emails={briefing?.data?.emails ?? []} loading={loading} connected={st.gmail ?? false} />
+              <MeetingsCard meetings={briefing?.data?.meetings ?? []} loading={loading} connected={st.calendar ?? false} />
+              <TasksCard tasks={briefing?.data?.tasks ?? []} loading={loading} connected={st.notion ?? false} />
+              <PRsCard pull_requests={briefing?.data?.pull_requests ?? []} loading={loading} connected={st.github ?? false} />
+              <SlackCard slack_messages={briefing?.data?.slack_messages ?? []} loading={loading} connected={st.slack ?? false} />
             </div>
           </div>
         </div>
+
+        {/* Treasure map corners */}
+        <div className="fixed top-20 left-4 map-corner-tl opacity-30" />
+        <div className="fixed top-20 right-4 map-corner-tr opacity-30" />
+        <div className="fixed bottom-4 left-4 map-corner-bl opacity-30" />
+        <div className="fixed bottom-4 right-4 map-corner-br opacity-30" />
       </main>
     </>
   );
