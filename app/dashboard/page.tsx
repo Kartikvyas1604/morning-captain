@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Nav from "@/app/components/layout/Nav";
 import AISummary from "@/app/components/dashboard/AISummary";
 import EmailsCard from "@/app/components/dashboard/EmailsCard";
@@ -10,36 +10,59 @@ import PRsCard from "@/app/components/dashboard/PRsCard";
 import SlackCard from "@/app/components/dashboard/SlackCard";
 import ChatInput from "@/app/components/dashboard/ChatInput";
 import SqlDrawer from "@/app/components/dashboard/SqlDrawer";
-import type { BriefingResponse } from "@/app/lib/types";
+import CommandBar from "@/app/components/dashboard/CommandBar";
+import PersonaSelector from "@/app/components/dashboard/PersonaSelector";
+import StandupGenerator from "@/app/components/dashboard/StandupGenerator";
+import FocusMode from "@/app/components/dashboard/FocusMode";
+import CaptainsLog from "@/app/components/dashboard/CaptainsLog";
+import PulseSidebar from "@/app/components/dashboard/PulseSidebar";
+import type { BriefingResponse, Persona } from "@/app/lib/types";
 
 export default function DashboardPage() {
   const [briefing, setBriefing] = useState<BriefingResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [persona, setPersona] = useState<Persona>("deep-work");
+
+  const fetchBriefing = useCallback(async (p: Persona) => {
+    try {
+      const res = await fetch("/api/briefing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ persona: p }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: BriefingResponse = await res.json();
+      setBriefing(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load briefing.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     let c = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/briefing", { method: "POST" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data: BriefingResponse = await res.json();
-        if (!c) setBriefing(data);
-      } catch (err) {
-        if (!c) { console.error(err); setError("Failed to load briefing."); }
-      } finally { if (!c) setLoading(false); }
-    })();
+    setLoading(true);
+    fetchBriefing(persona).catch(() => { if (!c) setError("Failed to load."); });
     return () => { c = true; };
+  }, [persona, fetchBriefing]);
+
+  const refresh = useCallback(() => {
+    setLoading(true); setError(null);
+    fetchBriefing(persona);
+  }, [persona, fetchBriefing]);
+
+  const changePersona = useCallback((p: Persona) => {
+    setPersona(p);
+    if (typeof window !== "undefined") localStorage.setItem("mc_persona", p);
   }, []);
 
-  const refresh = () => {
-    setLoading(true); setError(null);
-    fetch("/api/briefing", { method: "POST" })
-      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
-      .then((d: BriefingResponse) => setBriefing(d))
-      .catch(() => setError("Failed to refresh."))
-      .finally(() => setLoading(false));
-  };
+  useEffect(() => {
+    const saved = localStorage.getItem("mc_persona") as Persona | null;
+    if (saved && ["deep-work", "inbox-zero", "ship-mode"].includes(saved)) setPersona(saved);
+  }, []);
 
   const st = briefing?.source_status ?? {};
   const hasData = briefing?.data && Object.values(briefing.data).some((a) => a.length > 0);
@@ -48,14 +71,34 @@ export default function DashboardPage() {
   return (
     <>
       <Nav />
+      <CommandBar />
+      <PulseSidebar data={briefing?.data ?? null} />
       <main className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen wood-grain">
         <div className="fixed top-1/4 left-1/4 w-80 h-80 rounded-full bg-[var(--accent-gold)] opacity-[0.02] blur-[100px] pointer-events-none" />
         <div className="fixed bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-[var(--accent-teal)] opacity-[0.015] blur-[120px] pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto">
-          <div className="mb-8 anim-fade-up d1">
-            <h1 className="text-3xl font-heading text-[var(--text-primary)] tracking-tight">The Captain&apos;s Deck</h1>
-            <p className="text-sm text-[var(--text-secondary)] font-mono mt-1">All hands on deck — your daily intelligence.</p>
+          <div className="mb-8 anim-fade-up d1 flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-heading text-[var(--text-primary)] tracking-tight">The Captain&apos;s Deck</h1>
+              <p className="text-sm text-[var(--text-secondary)] font-mono mt-1">All hands on deck — your daily intelligence.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <PersonaSelector current={persona} onSelect={changePersona} />
+              <button
+                onClick={refresh}
+                disabled={loading}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)] text-xs font-mono text-[var(--text-secondary)] hover:text-[var(--accent-teal)] hover:border-[var(--accent-teal)]/40 transition-all disabled:opacity-50"
+                aria-label="Refresh briefing"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={loading ? "animate-spin" : ""}>
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </svg>
+                Refresh
+              </button>
+            </div>
           </div>
 
           {error && (
@@ -82,13 +125,15 @@ export default function DashboardPage() {
 
             <div className="lg:col-span-5 space-y-6">
               <AISummary summary={briefing?.summary ?? ""} timestamp={briefing?.timestamp ?? ""} loading={loading} onRefresh={refresh} aiGenerated={briefing?.ai_generated ?? false} />
+              <CaptainsLog data={briefing?.data ?? null} />
+              <StandupGenerator data={briefing?.data ?? null} />
+              <FocusMode data={briefing?.data ?? null} />
               <ChatInput briefingData={briefing?.data ?? null} />
               <SqlDrawer sql={briefing?.sql ?? ""} />
             </div>
           </div>
         </div>
 
-        {/* Treasure map corners */}
         <div className="fixed top-20 left-4 map-corner-tl opacity-30" />
         <div className="fixed top-20 right-4 map-corner-tr opacity-30" />
         <div className="fixed bottom-4 left-4 map-corner-bl opacity-30" />
