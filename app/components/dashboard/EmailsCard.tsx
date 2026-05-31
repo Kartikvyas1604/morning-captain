@@ -1,21 +1,15 @@
+"use client";
+
 import BriefingCard from "./BriefingCard";
+import type { Email } from "@/app/lib/types";
 
-const ITEMS = [
-  "Sarah Chen — Deployment deadline moved to Friday",
-  "GitHub — [morning-captain] 3 new PR comments",
-  "Alex — Re: Q3 budget review meeting",
-  "Design Team — Updated mockups for review",
-  "Calendar — Reminder: Standup in 15 min",
-  "Notion — Task assigned: Update API docs",
-  "Jen — Re: Sprint retro notes",
-  "Stripe — Receipt for subscription payment",
-  "Jen — Lunch tomorrow?",
-  "GitHub — [api-service] Build failed on main",
-  "Mom — Are you coming this weekend?",
-  "LinkedIn — You have 5 new connection requests",
-];
+interface EmailsCardProps {
+  emails: Email[];
+  loading?: boolean;
+  connected?: boolean;
+}
 
-export default function EmailsCard() {
+export default function EmailsCard({ emails, loading = false, connected = true }: EmailsCardProps) {
   return (
     <BriefingCard
       icon={
@@ -25,10 +19,30 @@ export default function EmailsCard() {
         </svg>
       }
       title="Emails"
-      count={ITEMS.length}
-      items={ITEMS.slice(0, 3)}
+      count={emails.length}
       accentColor="var(--accent-gold)"
       index={0}
-    />
+      connected={connected}
+      loading={loading}
+    >
+      {emails.length === 0 && !loading ? (
+        <p className="text-sm text-[var(--text-secondary)] font-mono italic">
+          No unread emails
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {emails.slice(0, 3).map((email) => (
+            <p
+              key={email.id}
+              className="text-sm text-[var(--text-secondary)] font-mono leading-relaxed truncate"
+            >
+              <span className="text-[var(--text-primary)]">{email.sender}</span>
+              {" — "}
+              {email.subject}
+            </p>
+          ))}
+        </div>
+      )}
+    </BriefingCard>
   );
 }

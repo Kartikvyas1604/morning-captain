@@ -1,13 +1,26 @@
+"use client";
+
 import BriefingCard from "./BriefingCard";
+import type { CalendarEvent } from "@/app/lib/types";
 
-const ITEMS = [
-  "10:30 AM — Sprint Planning (Zoom)",
-  "1:00 PM — Design Review with Alex",
-  "3:30 PM — 1:1 with Manager",
-  "4:45 PM — Coffee chat with new intern",
-];
+interface MeetingsCardProps {
+  meetings: CalendarEvent[];
+  loading?: boolean;
+  connected?: boolean;
+}
 
-export default function MeetingsCard() {
+function formatTime(iso: string) {
+  try {
+    return new Date(iso).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+export default function MeetingsCard({ meetings, loading = false, connected = true }: MeetingsCardProps) {
   return (
     <BriefingCard
       icon={
@@ -19,10 +32,30 @@ export default function MeetingsCard() {
         </svg>
       }
       title="Meetings"
-      count={ITEMS.length}
-      items={ITEMS.slice(0, 3)}
+      count={meetings.length}
       accentColor="var(--accent-teal)"
       index={1}
-    />
+      connected={connected}
+      loading={loading}
+    >
+      {meetings.length === 0 && !loading ? (
+        <p className="text-sm text-[var(--text-secondary)] font-mono italic">
+          No meetings scheduled today
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {meetings.slice(0, 3).map((meeting) => (
+            <p
+              key={meeting.id}
+              className="text-sm text-[var(--text-secondary)] font-mono leading-relaxed truncate"
+            >
+              <span className="text-[var(--accent-teal)]">{formatTime(meeting.start_time)}</span>
+              {" — "}
+              {meeting.title}
+            </p>
+          ))}
+        </div>
+      )}
+    </BriefingCard>
   );
 }

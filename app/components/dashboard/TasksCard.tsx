@@ -1,14 +1,29 @@
+"use client";
+
 import BriefingCard from "./BriefingCard";
+import type { Task } from "@/app/lib/types";
 
-const ITEMS = [
-  "🔴 [High] Finalize deployment checklist — Due Today",
-  "🟡 [Medium] Update API documentation — Due Tomorrow",
-  "🟢 [Low] Refactor auth middleware — Due Friday",
-  "🔴 [High] Review PR #142 — Pending",
-  "🟡 [Medium] Write unit tests for billing module",
-];
+interface TasksCardProps {
+  tasks: Task[];
+  loading?: boolean;
+  connected?: boolean;
+}
 
-export default function TasksCard() {
+const priorityColors: Record<string, string> = {
+  high: "var(--accent-red)",
+  medium: "var(--accent-gold)",
+  normal: "var(--accent-teal)",
+  low: "var(--text-secondary)",
+};
+
+const priorityLabels: Record<string, string> = {
+  high: "🔴 High",
+  medium: "🟡 Med",
+  normal: "🟢 Norm",
+  low: "⚪ Low",
+};
+
+export default function TasksCard({ tasks, loading = false, connected = true }: TasksCardProps) {
   return (
     <BriefingCard
       icon={
@@ -18,10 +33,32 @@ export default function TasksCard() {
         </svg>
       }
       title="Tasks"
-      count={ITEMS.length}
-      items={ITEMS.slice(0, 3)}
+      count={tasks.length}
       accentColor="var(--accent-gold)"
       index={2}
-    />
+      connected={connected}
+      loading={loading}
+    >
+      {tasks.length === 0 && !loading ? (
+        <p className="text-sm text-[var(--text-secondary)] font-mono italic">
+          No pending tasks
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {tasks.slice(0, 3).map((task) => (
+            <p
+              key={task.id}
+              className="text-sm text-[var(--text-secondary)] font-mono leading-relaxed truncate"
+            >
+              <span style={{ color: priorityColors[task.priority] || "var(--text-secondary)" }}>
+                {priorityLabels[task.priority] || task.priority}
+              </span>
+              {" "}
+              {task.title}
+            </p>
+          ))}
+        </div>
+      )}
+    </BriefingCard>
   );
 }
