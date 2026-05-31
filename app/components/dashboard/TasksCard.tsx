@@ -34,7 +34,7 @@ export default function TasksCard({ tasks, loading = false, connected = true }: 
       }
       title="Tasks"
       count={tasks.length}
-      accentColor="var(--accent-gold)"
+      variant="gold"
       index={2}
       connected={connected}
       loading={loading}

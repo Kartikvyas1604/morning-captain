@@ -33,7 +33,7 @@ export default function MeetingsCard({ meetings, loading = false, connected = tr
       }
       title="Meetings"
       count={meetings.length}
-      accentColor="var(--accent-teal)"
+      variant="teal"
       index={1}
       connected={connected}
       loading={loading}

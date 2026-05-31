@@ -2,27 +2,34 @@
 
 import { motion } from "framer-motion";
 
+type AccentVariant = "gold" | "teal" | "red";
+
 interface BriefingCardProps {
   icon: React.ReactNode;
   title: string;
   count: number;
-  accentColor?: string;
+  variant?: AccentVariant;
   index?: number;
   children?: React.ReactNode;
   connected?: boolean;
   loading?: boolean;
 }
 
+const variantClass = (v: AccentVariant) => `card-accent-${v}`;
+
 export default function BriefingCard({
   icon,
   title,
   count,
-  accentColor = "var(--accent-teal)",
+  variant = "teal",
   index = 0,
   children,
   connected = true,
   loading = false,
 }: BriefingCardProps) {
+  const accentClass = connected ? variantClass(variant) : "card-accent-muted";
+  const badgeClass = count > 0 && connected ? variantClass(variant) : "card-accent-muted";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -32,7 +39,7 @@ export default function BriefingCard({
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <span style={{ color: connected ? accentColor : "var(--text-secondary)" }}>
+          <span className={accentClass}>
             {icon}
           </span>
           <h3 className="font-heading text-lg text-[var(--text-primary)]">{title}</h3>
@@ -43,13 +50,7 @@ export default function BriefingCard({
         {loading ? (
           <span className="w-8 h-5 rounded-full bg-[var(--bg-tertiary)] animate-pulse" />
         ) : (
-          <span
-            className="text-xs font-mono px-2.5 py-1 rounded-full border"
-            style={{
-              borderColor: count > 0 ? accentColor : "var(--border)",
-              color: count > 0 ? accentColor : "var(--text-secondary)",
-            }}
-          >
+          <span className={`text-xs font-mono px-2.5 py-1 rounded-full border ${badgeClass}`}>
             {count}
           </span>
         )}

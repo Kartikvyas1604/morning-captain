@@ -20,7 +20,7 @@ export default function EmailsCard({ emails, loading = false, connected = true }
       }
       title="Emails"
       count={emails.length}
-      accentColor="var(--accent-gold)"
+      variant="gold"
       index={0}
       connected={connected}
       loading={loading}

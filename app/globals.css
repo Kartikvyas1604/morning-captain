@@ -100,15 +100,15 @@ body {
 
 .frosted-glass {
   background: rgba(15, 21, 32, 0.7);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
 }
 
 .frosted-glass-gold {
   background: rgba(15, 21, 32, 0.7);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent-gold);
 }
@@ -119,6 +119,32 @@ body {
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 60px 60px;
 }
+
+.card-accent-gold { color: var(--accent-gold); border-color: var(--accent-gold); }
+.card-accent-teal { color: var(--accent-teal); border-color: var(--accent-teal); }
+.card-accent-red { color: var(--accent-red); border-color: var(--accent-red); }
+.card-accent-muted { color: var(--text-secondary); border-color: var(--border); }
+
+.icon-box-enabled { color: var(--accent-teal); }
+.icon-box-disabled { color: var(--text-secondary); }
+
+.status-needs_review { color: var(--accent-gold); }
+.status-changes_requested { color: var(--accent-red); }
+.status-draft { color: var(--text-secondary); }
+.status-approved { color: var(--accent-teal); }
+.status-merged { color: var(--accent-teal); }
+
+.priority-high { color: var(--accent-red); }
+.priority-medium { color: var(--accent-gold); }
+.priority-normal { color: var(--accent-teal); }
+.priority-low { color: var(--text-secondary); }
+
+.delay-1 { animation-delay: 0.5s; animation-fill-mode: forwards; }
+.delay-2 { animation-delay: 1s; animation-fill-mode: forwards; }
+.delay-3 { animation-delay: 1.5s; animation-fill-mode: forwards; }
+
+.fade-in-delay-1 { opacity: 0; animation: fade-in-up 0.6s ease-out 0.8s forwards; }
+.fade-in-delay-2 { opacity: 0; animation: fade-in-up 0.6s ease-out 1s forwards; }
 
 .star-field::before {
   content: '';

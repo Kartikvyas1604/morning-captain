@@ -9,13 +9,16 @@ interface PRsCardProps {
   connected?: boolean;
 }
 
-const statusColors: Record<string, string> = {
-  needs_review: "var(--accent-gold)",
-  changes_requested: "var(--accent-red)",
-  draft: "var(--text-secondary)",
-  approved: "var(--accent-teal)",
-  merged: "var(--accent-teal)",
-};
+function statusClass(status: string): string {
+  const map: Record<string, string> = {
+    needs_review: "status-needs_review",
+    changes_requested: "status-changes_requested",
+    draft: "status-draft",
+    approved: "status-approved",
+    merged: "status-merged",
+  };
+  return map[status] || "status-draft";
+}
 
 export default function PRsCard({ pull_requests, loading = false, connected = true }: PRsCardProps) {
   return (
@@ -31,7 +34,7 @@ export default function PRsCard({ pull_requests, loading = false, connected = tr
       }
       title="Pull Requests"
       count={pull_requests.length}
-      accentColor="var(--accent-teal)"
+      variant="teal"
       index={3}
       connected={connected}
       loading={loading}
@@ -47,7 +50,7 @@ export default function PRsCard({ pull_requests, loading = false, connected = tr
               key={pr.id}
               className="text-sm text-[var(--text-secondary)] font-mono leading-relaxed truncate"
             >
-              <span style={{ color: statusColors[pr.status] || "var(--text-secondary)" }}>
+              <span className={statusClass(pr.status)}>
                 #{pr.id.slice(0, 6)}
               </span>
               {" — "}

@@ -22,7 +22,7 @@ export default function SlackCard({ slack_messages, loading = false, connected =
       }
       title="Slack"
       count={slack_messages.length}
-      accentColor="var(--accent-gold)"
+      variant="gold"
       index={4}
       connected={connected}
       loading={loading}
